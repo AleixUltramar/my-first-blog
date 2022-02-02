@@ -10,6 +10,13 @@
 
         {% if user.is_authenticated %}
             <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+            <form action="{% url 'post_remove' pk=post.pk %}" method="post" class="form-remove">
+                {% csrf_token %}
+                <button class="btn btn-default" type="submit" value="Delete">
+                  <span class="glyphicon glyphicon-remove"></span>
+                </button>
+            </form>
+
         {% endif %}
         <h2>{{ post.title }}</h2>
         <p>{{ post.text|linebreaksbr }}</p>
