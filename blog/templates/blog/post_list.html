@@ -1,13 +1,7 @@
 {% extends 'blog/base.html' %}
 
 {% block content %}
-    {% for post in posts %}
-        <div class="post">
-            <div class="date">
-                {{ post.published_date }}
-            </div>
-            <h2><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h2>
-            <p>{{ post.text|linebreaksbr }}</p>
-        </div>
-    {% endfor %}
+    {% load render_table from django_tables2 %}
+
+    {% render_table table %}
 {% endblock %}
