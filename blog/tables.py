@@ -17,7 +17,7 @@ class PersonTable(tables.Table):
 
     class Meta:
         model = Post
-        sequence = ("author", "title", "text", "published_date")
+        sequence = ("title", "text", "author", "published_date")
         exclude = ("id", "created_date")
 
     def render_text(self, value):
