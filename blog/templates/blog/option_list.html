@@ -1,0 +1,7 @@
+<a class="btn btn-default" href="{% url 'post_edit' record.id %}"><span class="glyphicon glyphicon-pencil"></span></a>
+<form action="{% url 'post_remove' pk=record.id %}" method="post" class="form-remove">
+    {% csrf_token %}
+    <button class="btn btn-default" type="submit" value="Delete">
+      <span class="glyphicon glyphicon-trash"></span>
+    </button>
+</form>
