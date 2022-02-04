@@ -13,12 +13,20 @@ from .models import Post
 from .forms import PostForm
 from .tables import PersonTable
 
-class ListPostView(ExportMixin, SingleTableView): # equals: (SingleTableMixin, generic.ListView)
+
+class TemplateMixin:
+    def get_template_base(self):
+        num_template = (self.request.user.id % 5) + 1 if self.request.user.id else ''
+        template = 'blog/base%s.html' % (num_template, )
+        return template
+
+
+class ListPostView(ExportMixin, SingleTableView, TemplateMixin):  # equals: (SingleTableMixin, generic.ListView)
     template_name = "blog/post_list.html"
     table_class = PersonTable
     context_object_name = "posts"
     table_pagination = {
-        "per_page": 4
+        "per_page": 10
     }
     export_formats = ['csv', 'json', 'ods', 'xls']
 
@@ -29,12 +37,12 @@ class ListPostView(ExportMixin, SingleTableView): # equals: (SingleTableMixin, g
         return posts
 
 
-class DetailPostView(generic.DetailView):
+class DetailPostView(generic.DetailView, TemplateMixin):
     model = Post
     template_name = "blog/post_detail.html"
 
 
-class CreatePostView(LoginRequiredMixin, generic.CreateView):
+class CreatePostView(LoginRequiredMixin, generic.CreateView, TemplateMixin):
     template_name = "blog/post_edit.html"
     form_class = PostForm
     model = Post
@@ -50,7 +58,7 @@ class CreatePostView(LoginRequiredMixin, generic.CreateView):
         return reverse("post_detail", kwargs={"pk": self.object.pk})
 
 
-class EditPostView(LoginRequiredMixin, generic.UpdateView):
+class EditPostView(LoginRequiredMixin, generic.UpdateView, TemplateMixin):
     template_name = "blog/post_edit.html"
     form_class = PostForm
     model = Post
@@ -72,7 +80,7 @@ class EditPostView(LoginRequiredMixin, generic.UpdateView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class RemovePostView(LoginRequiredMixin, generic.DeleteView):
+class RemovePostView(LoginRequiredMixin, generic.DeleteView, TemplateMixin):
     model = Post
     form = PostForm
 
