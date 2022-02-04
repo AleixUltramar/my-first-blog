@@ -5,21 +5,28 @@ from django_tables2.utils import A
 
 from .models import Post
 
-class PublishedDateColumn(tables.DateTimeColumn):
 
+class PublishedDateColumn(tables.DateTimeColumn):
     def render(self, value, *args, **kwargs):
         val = super().render(value=value, *args, **kwargs)
-        return format_html('<div class="date">{}</div>', val) #o template_name..
+        return format_html('<div class="date">{}</div>', val)  # o template_name..
+
 
 class PersonTable(tables.Table):
     title = columns.LinkColumn("post_detail", args=[A("pk")])
     published_date = PublishedDateColumn()
-    options = tables.TemplateColumn(template_name='blog/option_list.html')
+    options = tables.TemplateColumn(template_name="blog/option_list.html")
 
     class Meta:
         model = Post
-        sequence = ("title", "text", "author", "published_date", "options",)
+        sequence = (
+            "title",
+            "text",
+            "author",
+            "published_date",
+            "options",
+        )
         exclude = ("id", "created_date")
 
     def render_text(self, value):
-        return value or 'linebreaksbr'
+        return value or "linebreaksbr"

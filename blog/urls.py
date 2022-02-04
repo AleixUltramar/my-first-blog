@@ -1,5 +1,5 @@
 """mysite URL Configuration"""
-from django.urls import path
+from django.urls import include, path
 from . import views
 
 urlpatterns = [
@@ -8,4 +8,5 @@ urlpatterns = [
     path('post/new/', views.CreatePostView.as_view(), name='post_new'),
     path('post/<int:pk>/edit/', views.EditPostView.as_view(), name='post_edit'),
     path('post/<int:pk>/remove/', views.RemovePostView.as_view(), name='post_remove'),
+    path('__debug__/', include('debug_toolbar.urls')),
 ]

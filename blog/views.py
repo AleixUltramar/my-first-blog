@@ -16,19 +16,19 @@ from .tables import PersonTable
 
 class TemplateMixin:
     def get_template_base(self):
-        num_template = (self.request.user.id % 5) + 1 if self.request.user.id else ''
-        template = 'blog/base%s.html' % (num_template, )
+        num_template = (self.request.user.id % 5) + 1 if self.request.user.id else ""
+        template = "blog/base%s.html" % (num_template,)
         return template
 
 
-class ListPostView(ExportMixin, SingleTableView, TemplateMixin):  # equals: (SingleTableMixin, generic.ListView)
+class ListPostView(
+    ExportMixin, SingleTableView, TemplateMixin
+):
     template_name = "blog/post_list.html"
     table_class = PersonTable
     context_object_name = "posts"
-    table_pagination = {
-        "per_page": 10
-    }
-    export_formats = ['csv', 'json', 'ods', 'xls']
+    table_pagination = {"per_page": 10}
+    export_formats = ["csv", "json", "ods", "xls"]
 
     def get_queryset(self):
         posts = Post.objects.filter(published_date__lte=timezone.now()).order_by(
@@ -76,7 +76,7 @@ class EditPostView(LoginRequiredMixin, generic.UpdateView, TemplateMixin):
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().author != self.request.user:
             messages.error(self.request, "You are not allowed to edit this entry!")
-            return HttpResponseRedirect(reverse('post_list'))
+            return HttpResponseRedirect(reverse("post_list"))
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -90,5 +90,5 @@ class RemovePostView(LoginRequiredMixin, generic.DeleteView, TemplateMixin):
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().author != self.request.user:
             messages.error(self.request, "You are not allowed to delete this entry!")
-            return HttpResponseRedirect(reverse('post_list'))
+            return HttpResponseRedirect(reverse("post_list"))
         return super().dispatch(request, *args, **kwargs)
