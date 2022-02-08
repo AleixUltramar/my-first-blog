@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
+from django.views.generic.base import ContextMixin
 from django_tables2 import SingleTableView
 from django_tables2.export.views import ExportMixin
 
@@ -14,15 +15,21 @@ from .forms import PostForm
 from .tables import PersonTable
 
 
-class TemplateMixin:
+class TemplateMixin(ContextMixin):
     def get_template_base(self):
         num_template = (self.request.user.id % 5) + 1 if self.request.user.id else ""
         template = "blog/base%s.html" % (num_template,)
         return template
 
+    def get_context_data(self, **kwargs):
+        # para añadir el "template_base" como variable en los templates (en vez de usar directamente el método
+        # "get_template_base" desde los templates)
+        kwargs['template_base'] = self.get_template_base()
+        return super().get_context_data(**kwargs)
+
 
 class ListPostView(
-    ExportMixin, SingleTableView, TemplateMixin
+    TemplateMixin, ExportMixin, SingleTableView
 ):
     template_name = "blog/post_list.html"
     table_class = PersonTable
@@ -37,12 +44,12 @@ class ListPostView(
         return posts
 
 
-class DetailPostView(generic.DetailView, TemplateMixin):
+class DetailPostView(TemplateMixin, generic.DetailView):
     model = Post
     template_name = "blog/post_detail.html"
 
 
-class CreatePostView(LoginRequiredMixin, generic.CreateView, TemplateMixin):
+class CreatePostView(LoginRequiredMixin, TemplateMixin, generic.CreateView):
     template_name = "blog/post_edit.html"
     form_class = PostForm
     model = Post
@@ -58,7 +65,7 @@ class CreatePostView(LoginRequiredMixin, generic.CreateView, TemplateMixin):
         return reverse("post_detail", kwargs={"pk": self.object.pk})
 
 
-class EditPostView(LoginRequiredMixin, generic.UpdateView, TemplateMixin):
+class EditPostView(LoginRequiredMixin, TemplateMixin, generic.UpdateView):
     template_name = "blog/post_edit.html"
     form_class = PostForm
     model = Post
@@ -73,14 +80,14 @@ class EditPostView(LoginRequiredMixin, generic.UpdateView, TemplateMixin):
     def get_success_url(self):
         return reverse("post_detail", kwargs={"pk": self.object.pk})
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):  # Lo mejor sería hacer la validación en el método "get_object" en vez del dispatch!
         if self.get_object().author != self.request.user:
             messages.error(self.request, "You are not allowed to edit this entry!")
             return HttpResponseRedirect(reverse("post_list"))
         return super().dispatch(request, *args, **kwargs)
 
 
-class RemovePostView(LoginRequiredMixin, generic.DeleteView, TemplateMixin):
+class RemovePostView(LoginRequiredMixin, TemplateMixin, generic.DeleteView):
     model = Post
     form = PostForm
 
